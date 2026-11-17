@@ -87,25 +87,11 @@ function resetHousehold() {
   renderAll();
 }
 
-async function tryAutoFetch() {
-  try {
-    const res = await fetch('household.json');
-    if (res.ok) {
-      const obj = await res.json();
-      HOUSEHOLD = migrateHousehold(obj);
-      setStatus('Loaded household.json', 'ok');
-      recomputeDerived();
-      renderAll();
-    }
-  } catch (e) { /* expected under file:// */ }
-}
-
 function init() {
   document.getElementById('loadPicker').addEventListener('change', onLoadPickerChange);
   document.getElementById('saveBtn').addEventListener('click', downloadHouseholdJSON);
   document.getElementById('resetBtn').addEventListener('click', resetHousehold);
   renderAll();
-  tryAutoFetch();
 }
 
 document.addEventListener('DOMContentLoaded', init);
