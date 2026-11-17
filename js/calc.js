@@ -26,16 +26,18 @@ function computeFilerRollup(filer, taxYear) {
   const taxableBenefitsAnnual = filer.taxableBenefitsYTD + taxableBenefitsRemaining;
 
   const deductions = filer.deductions.map(d => {
-    const remainingAmount = d.type === 'percentOfGross'
-      ? d.remainingValue * filer.grossPayPerPeriod * periods
-      : d.remainingValue * periods;
-    return Object.assign({}, d, { remainingAmount, annualAmount: d.ytdAmount + remainingAmount });
+    const remainingPerPeriod = d.type === 'percentOfGross' ? d.remainingValue * filer.grossPayPerPeriod : d.remainingValue;
+    const remainingAmount = remainingPerPeriod * periods;
+    return Object.assign({}, d, { remainingPerPeriod, remainingAmount, annualAmount: d.ytdAmount + remainingAmount });
   });
   const basisTotal = (basisKey, amountKey) =>
     deductions.filter(d => d[basisKey]).reduce((s, d) => s + d[amountKey], 0);
+  const basisPerPeriodTotal = basisKey =>
+    deductions.filter(d => d[basisKey]).reduce((s, d) => s + d.remainingPerPeriod, 0);
 
   const grossPlusBenefitsYtd = filer.grossPayYTD + filer.taxableBenefitsYTD;
   const grossPlusBenefitsAnnual = grossPayAnnual + taxableBenefitsAnnual;
+  const grossPlusBenefitsPerPeriod = filer.grossPayPerPeriod + filer.taxableBenefitsPerPeriod;
 
   const federalTaxablePay = {
     ytd: grossPlusBenefitsYtd - basisTotal('reducesFederalTaxable', 'ytdAmount'),
@@ -72,14 +74,20 @@ function computeFilerRollup(filer, taxYear) {
     annual: filer.medicareWithholdingYTD + medicareWithholdingRemaining,
   };
 
-  const federalWithholdingRemaining = periods * (filer.federalWithholdingRate * filer.grossPayPerPeriod + filer.federalWithholdingExtra);
+  // Withholding is a percentage of taxable pay, not gross pay — e.g. 401k
+  // contributions reduce the wages federal/state income tax is withheld
+  // from, same as they reduce the wages actually taxed at filing time.
+  const federalTaxablePayPerPeriod = grossPlusBenefitsPerPeriod - basisPerPeriodTotal('reducesFederalTaxable');
+  const stateTaxablePayPerPeriod = grossPlusBenefitsPerPeriod - basisPerPeriodTotal('reducesStateTaxable');
+
+  const federalWithholdingRemaining = periods * (filer.federalWithholdingRate * federalTaxablePayPerPeriod + filer.federalWithholdingExtra);
   const federalWithholding = {
     ytd: filer.federalWithholdingYTD,
     remaining: federalWithholdingRemaining,
     annual: filer.federalWithholdingYTD + federalWithholdingRemaining,
   };
 
-  const stateWithholdingRemaining = periods * (filer.stateWithholdingRate * filer.grossPayPerPeriod + filer.stateWithholdingExtra);
+  const stateWithholdingRemaining = periods * (filer.stateWithholdingRate * stateTaxablePayPerPeriod + filer.stateWithholdingExtra);
   const stateWithholding = {
     ytd: filer.stateWithholdingYTD,
     remaining: stateWithholdingRemaining,

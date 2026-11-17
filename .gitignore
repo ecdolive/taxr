@@ -1,1 +1,5 @@
 .claude/
+
+# Personal financial data — never commit (this repo is public).
+household.json
+*.household.json
