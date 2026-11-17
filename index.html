@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>taxr</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>taxr</h1>
+    <div class="file-actions">
+      <label class="btn btn-secondary">
+        Load
+        <input type="file" id="loadPicker" accept="application/json" hidden>
+      </label>
+      <button id="saveBtn" class="btn">Save</button>
+      <button id="resetBtn" class="btn btn-secondary">Reset</button>
+    </div>
+  </header>
+  <div id="statusMsg" class="status-msg"></div>
+
+  <main id="app">
+    <section id="settingsPanel" class="panel"></section>
+    <section id="filersPanel" class="filers"></section>
+    <div class="tax-grid">
+      <section id="federalPanel" class="panel"></section>
+      <section id="statePanel" class="panel"></section>
+      <section id="totalsPanel" class="panel"></section>
+    </div>
+  </main>
+
+  <script src="js/constants.js"></script>
+  <script src="js/states/georgia.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/calc.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
