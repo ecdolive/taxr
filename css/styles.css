@@ -119,6 +119,12 @@ input[type="text"], input[type="number"], select {
 }
 .deductions-table input[type="text"] { text-align: left; max-width: none; }
 select { text-align: left; max-width: none; }
+
+/* Every number input here is a dollar amount, rate, or count typed in
+   directly — the native step spinner doesn't fit any of those. */
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .rate-plus-extra { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
 .rate-plus-extra input { max-width: 70px; }
 .rate-plus-extra span { font-size: 12px; color: var(--text-muted); }
